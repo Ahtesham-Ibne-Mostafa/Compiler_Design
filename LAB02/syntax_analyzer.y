@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	yyin = fopen(argv[1], "r");
-	outlog.open("my_log.txt", ios::trunc);
+	outlog.open("log3.txt", ios::trunc);
 	
 	if(yyin == NULL)
 	{

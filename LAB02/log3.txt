@@ -74,8 +74,6 @@ At line no: 5 expression : logic_expression
 
 a>1
 
-New ScopeTable with ID 3 created
-
 At line no: 6 type_specifier : FLOAT 
 
 float
@@ -143,8 +141,6 @@ a>1
 At line no: 8 expression : logic_expression 
 
 a>1
-
-New ScopeTable with ID 4 created
 
 At line no: 9 type_specifier : INT 
 
@@ -214,8 +210,6 @@ At line no: 11 expression : logic_expression
 
 a>1
 
-New ScopeTable with ID 5 created
-
 At line no: 12 type_specifier : FLOAT 
 
 float
@@ -283,8 +277,6 @@ a>1
 At line no: 14 expression : logic_expression 
 
 a>1
-
-New ScopeTable with ID 6 created
 
 At line no: 15 type_specifier : INT 
 
@@ -354,8 +346,6 @@ At line no: 17 expression : logic_expression
 
 a>1
 
-New ScopeTable with ID 7 created
-
 At line no: 18 type_specifier : FLOAT 
 
 float
@@ -376,6 +366,8 @@ At line no: 18 statements : statement
 
 float a;
 
+New ScopeTable with ID 3 created
+
 At line no: 19 compound_statement : LCURL statements RCURL 
 
 {
@@ -384,47 +376,12 @@ float a;
 
 ################################
 
-ScopeTable # 7
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
-ScopeTable # 6
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 5
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
-ScopeTable # 4
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
 ScopeTable # 3
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -436,7 +393,7 @@ Parameter Details:
 
 ################################
 
-Scopetable with ID 7 removed
+Scopetable with ID 3 removed
 
 At line no: 19 statement : compound_statement 
 
@@ -459,6 +416,8 @@ if(a>1)
 float a;
 }
 
+New ScopeTable with ID 4 created
+
 At line no: 20 compound_statement : LCURL statements RCURL 
 
 {
@@ -471,40 +430,12 @@ float a;
 
 ################################
 
-ScopeTable # 6
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 5
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
 ScopeTable # 4
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 3
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -516,7 +447,7 @@ Parameter Details:
 
 ################################
 
-Scopetable with ID 6 removed
+Scopetable with ID 4 removed
 
 At line no: 20 statement : compound_statement 
 
@@ -551,6 +482,8 @@ float a;
 }
 }
 
+New ScopeTable with ID 5 created
+
 At line no: 21 compound_statement : LCURL statements RCURL 
 
 {
@@ -568,32 +501,11 @@ float a;
 ################################
 
 ScopeTable # 5
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
-ScopeTable # 4
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 3
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -652,6 +564,8 @@ float a;
 }
 }
 
+New ScopeTable with ID 6 created
+
 At line no: 22 compound_statement : LCURL statements RCURL 
 
 {
@@ -672,26 +586,12 @@ float a;
 
 ################################
 
-ScopeTable # 4
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 3
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
+ScopeTable # 6
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -703,7 +603,7 @@ Parameter Details:
 
 ################################
 
-Scopetable with ID 4 removed
+Scopetable with ID 6 removed
 
 At line no: 22 statement : compound_statement 
 
@@ -762,6 +662,8 @@ float a;
 }
 }
 
+New ScopeTable with ID 7 created
+
 At line no: 23 compound_statement : LCURL statements RCURL 
 
 {
@@ -786,19 +688,12 @@ float a;
 
 ################################
 
-ScopeTable # 3
-7 --> 
-< a : ID >
-Variable
-Type: float
-
-
+ScopeTable # 7
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -810,7 +705,7 @@ Parameter Details:
 
 ################################
 
-Scopetable with ID 3 removed
+Scopetable with ID 7 removed
 
 At line no: 23 statement : compound_statement 
 
@@ -881,6 +776,8 @@ float a;
 }
 }
 
+New ScopeTable with ID 8 created
+
 At line no: 24 compound_statement : LCURL statements RCURL 
 
 {
@@ -909,12 +806,12 @@ float a;
 
 ################################
 
+ScopeTable # 8
 ScopeTable # 2
 7 --> 
 < a : ID >
 Variable
 Type: int
-
 
 ScopeTable # 1
 8 --> 
@@ -926,7 +823,7 @@ Parameter Details:
 
 ################################
 
-Scopetable with ID 2 removed
+Scopetable with ID 8 removed
 
 At line no: 24 func_definition : type_specifier ID LPAREN RPAREN compound_statement 
 
@@ -1014,6 +911,12 @@ At line no: 24 start : program
 Symbol Table
 
 ################################
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
 
 ScopeTable # 1
 8 --> 

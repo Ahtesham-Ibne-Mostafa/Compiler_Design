@@ -82,6 +82,8 @@ At line no: 2 statements : statement
 
 return a+b;
 
+New ScopeTable with ID 3 created
+
 At line no: 3 compound_statement : LCURL statements RCURL 
 
 {
@@ -90,6 +92,7 @@ return a+b;
 
 ################################
 
+ScopeTable # 3
 ScopeTable # 2
 7 --> 
 < a : ID >
@@ -101,7 +104,6 @@ Type: int
 Variable
 Type: float
 
-
 ScopeTable # 1
 8 --> 
 < func : ID >
@@ -112,7 +114,7 @@ Parameter Details: int a, float b
 
 ################################
 
-Scopetable with ID 2 removed
+Scopetable with ID 3 removed
 
 At line no: 3 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
 
@@ -139,7 +141,7 @@ At line no: 5 type_specifier : VOID
 
 void
 
-New ScopeTable with ID 3 created
+New ScopeTable with ID 4 created
 
 At line no: 6 type_specifier : INT 
 
@@ -436,6 +438,8 @@ b=2;
 c=func(a,b);
 float d;
 
+New ScopeTable with ID 5 created
+
 At line no: 13 compound_statement : LCURL statements RCURL 
 
 {
@@ -449,7 +453,8 @@ float d;
 
 ################################
 
-ScopeTable # 3
+ScopeTable # 5
+ScopeTable # 4
 0 --> 
 < d : ID >
 Variable
@@ -492,14 +497,25 @@ Type: int
 Variable
 Type: int
 
-
-ScopeTable # 1
+ScopeTable # 2
 1 --> 
 < main : ID >
 Function Definition
 Return Type: void
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: float
+
+ScopeTable # 1
 8 --> 
 < func : ID >
 Function Definition
@@ -509,7 +525,7 @@ Parameter Details: int a, float b
 
 ################################
 
-Scopetable with ID 3 removed
+Scopetable with ID 5 removed
 
 At line no: 13 func_definition : type_specifier ID LPAREN RPAREN compound_statement 
 
@@ -557,13 +573,68 @@ Symbol Table
 
 ################################
 
-ScopeTable # 1
+ScopeTable # 4
+0 --> 
+< d : ID >
+Variable
+Type: float
+
+1 --> 
+< e : ID >
+Variable
+Type: int
+
+2 --> 
+< f : ID >
+Array
+Type: int
+Size: 10
+
+3 --> 
+< g : ID >
+Array
+Type: int
+Size: 11
+
+5 --> 
+< i : ID >
+Variable
+Type: int
+
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
+9 --> 
+< c : ID >
+Variable
+Type: int
+
+ScopeTable # 2
 1 --> 
 < main : ID >
 Function Definition
 Return Type: void
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: float
+
+ScopeTable # 1
 8 --> 
 < func : ID >
 Function Definition

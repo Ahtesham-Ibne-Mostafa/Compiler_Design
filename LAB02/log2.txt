@@ -82,6 +82,8 @@ At line no: 2 statements : statement
 
 return a+b;
 
+New ScopeTable with ID 3 created
+
 At line no: 3 compound_statement : LCURL statements RCURL 
 
 {
@@ -90,6 +92,7 @@ return a+b;
 
 ################################
 
+ScopeTable # 3
 ScopeTable # 2
 7 --> 
 < a : ID >
@@ -101,7 +104,6 @@ Type: int
 Variable
 Type: int
 
-
 ScopeTable # 1
 8 --> 
 < func : ID >
@@ -112,7 +114,7 @@ Parameter Details: int a, int b
 
 ################################
 
-Scopetable with ID 2 removed
+Scopetable with ID 3 removed
 
 At line no: 3 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
 
@@ -155,7 +157,7 @@ At line no: 5 parameter_list : parameter_list COMMA type_specifier ID
 
 float a,int b
 
-New ScopeTable with ID 3 created
+New ScopeTable with ID 4 created
 
 At line no: 6 variable : ID 
 
@@ -217,6 +219,8 @@ At line no: 6 statements : statement
 
 return a-b;
 
+New ScopeTable with ID 5 created
+
 At line no: 7 compound_statement : LCURL statements RCURL 
 
 {
@@ -225,7 +229,8 @@ return a-b;
 
 ################################
 
-ScopeTable # 3
+ScopeTable # 5
+ScopeTable # 4
 7 --> 
 < a : ID >
 Variable
@@ -236,6 +241,22 @@ Type: float
 Variable
 Type: int
 
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
+< func2 : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: float a, int b
 
 ScopeTable # 1
 8 --> 
@@ -244,15 +265,10 @@ Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: int a, int b
-< func2 : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: float a, int b
 
 ################################
 
-Scopetable with ID 3 removed
+Scopetable with ID 5 removed
 
 At line no: 7 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
 
@@ -283,7 +299,7 @@ At line no: 9 type_specifier : INT
 
 int
 
-New ScopeTable with ID 4 created
+New ScopeTable with ID 6 created
 
 At line no: 10 type_specifier : INT 
 
@@ -700,8 +716,6 @@ At line no: 18 expression : logic_expression
 
 i++
 
-New ScopeTable with ID 5 created
-
 At line no: 19 type_specifier : INT 
 
 int
@@ -841,6 +855,8 @@ int a;
 a=c+i;
 a=c;
 
+New ScopeTable with ID 7 created
+
 At line no: 22 compound_statement : LCURL statements RCURL 
 
 {
@@ -851,14 +867,8 @@ a=c;
 
 ################################
 
-ScopeTable # 5
-7 --> 
-< a : ID >
-Variable
-Type: int
-
-
-ScopeTable # 4
+ScopeTable # 7
+ScopeTable # 6
 0 --> 
 < d : ID >
 Variable
@@ -901,29 +911,52 @@ Type: int
 Variable
 Type: int
 
-
-ScopeTable # 1
+ScopeTable # 4
 1 --> 
 < main : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: float
+
 8 --> 
-< func : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: int a, int b
+< b : ID >
+Variable
+Type: int
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
 < func2 : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: float a, int b
 
+ScopeTable # 1
+8 --> 
+< func : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: int a, int b
+
 ################################
 
-Scopetable with ID 5 removed
+Scopetable with ID 7 removed
 
 At line no: 22 statement : compound_statement 
 
@@ -1004,8 +1037,6 @@ c>10
 At line no: 24 expression : logic_expression 
 
 c>10
-
-New ScopeTable with ID 6 created
 
 At line no: 25 type_specifier : FLOAT 
 
@@ -1182,6 +1213,8 @@ float b;
 b=func2(1.0,2);
 d=b;
 
+New ScopeTable with ID 8 created
+
 At line no: 28 compound_statement : LCURL statements RCURL 
 
 {
@@ -1192,14 +1225,8 @@ d=b;
 
 ################################
 
+ScopeTable # 8
 ScopeTable # 6
-8 --> 
-< b : ID >
-Variable
-Type: float
-
-
-ScopeTable # 4
 0 --> 
 < d : ID >
 Variable
@@ -1242,29 +1269,52 @@ Type: int
 Variable
 Type: int
 
-
-ScopeTable # 1
+ScopeTable # 4
 1 --> 
 < main : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: float
+
 8 --> 
-< func : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: int a, int b
+< b : ID >
+Variable
+Type: int
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
 < func2 : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: float a, int b
 
+ScopeTable # 1
+8 --> 
+< func : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: int a, int b
+
 ################################
 
-Scopetable with ID 6 removed
+Scopetable with ID 8 removed
 
 At line no: 28 statement : compound_statement 
 
@@ -1351,8 +1401,6 @@ c>0
 At line no: 30 expression : logic_expression 
 
 c>0
-
-New ScopeTable with ID 7 created
 
 At line no: 31 type_specifier : INT 
 
@@ -1469,6 +1517,8 @@ int i;
 c--;
 i=c;
 
+New ScopeTable with ID 9 created
+
 At line no: 34 compound_statement : LCURL statements RCURL 
 
 {
@@ -1479,14 +1529,8 @@ i=c;
 
 ################################
 
-ScopeTable # 7
-5 --> 
-< i : ID >
-Variable
-Type: int
-
-
-ScopeTable # 4
+ScopeTable # 9
+ScopeTable # 6
 0 --> 
 < d : ID >
 Variable
@@ -1529,29 +1573,52 @@ Type: int
 Variable
 Type: int
 
-
-ScopeTable # 1
+ScopeTable # 4
 1 --> 
 < main : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: float
+
 8 --> 
-< func : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: int a, int b
+< b : ID >
+Variable
+Type: int
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
 < func2 : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: float a, int b
 
+ScopeTable # 1
+8 --> 
+< func : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: int a, int b
+
 ################################
 
-Scopetable with ID 7 removed
+Scopetable with ID 9 removed
 
 At line no: 34 statement : compound_statement 
 
@@ -1661,6 +1728,8 @@ i=c;
 }
 return c;
 
+New ScopeTable with ID 10 created
+
 At line no: 36 compound_statement : LCURL statements RCURL 
 
 {
@@ -1693,7 +1762,8 @@ return c;
 
 ################################
 
-ScopeTable # 4
+ScopeTable # 10
+ScopeTable # 6
 0 --> 
 < d : ID >
 Variable
@@ -1736,29 +1806,52 @@ Type: int
 Variable
 Type: int
 
-
-ScopeTable # 1
+ScopeTable # 4
 1 --> 
 < main : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: float
+
 8 --> 
-< func : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: int a, int b
+< b : ID >
+Variable
+Type: int
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
 < func2 : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: float a, int b
 
+ScopeTable # 1
+8 --> 
+< func : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: int a, int b
+
 ################################
 
-Scopetable with ID 4 removed
+Scopetable with ID 10 removed
 
 At line no: 36 func_definition : type_specifier ID LPAREN RPAREN compound_statement 
 
@@ -1867,24 +1960,91 @@ Symbol Table
 
 ################################
 
-ScopeTable # 1
+ScopeTable # 6
+0 --> 
+< d : ID >
+Variable
+Type: float
+
+1 --> 
+< e : ID >
+Variable
+Type: int
+
+2 --> 
+< f : ID >
+Array
+Type: int
+Size: 10
+
+3 --> 
+< g : ID >
+Array
+Type: int
+Size: 11
+
+5 --> 
+< i : ID >
+Variable
+Type: int
+
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
+9 --> 
+< c : ID >
+Variable
+Type: int
+
+ScopeTable # 4
 1 --> 
 < main : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 0
 Parameter Details: 
+
+7 --> 
+< a : ID >
+Variable
+Type: float
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
+ScopeTable # 2
+7 --> 
+< a : ID >
+Variable
+Type: int
+
+8 --> 
+< b : ID >
+Variable
+Type: int
+
+< func2 : ID >
+Function Definition
+Return Type: int
+Number of Parameters: 2
+Parameter Details: float a, int b
+
+ScopeTable # 1
 8 --> 
 < func : ID >
 Function Definition
 Return Type: int
 Number of Parameters: 2
 Parameter Details: int a, int b
-< func2 : ID >
-Function Definition
-Return Type: int
-Number of Parameters: 2
-Parameter Details: float a, int b
 
 ################################
 
