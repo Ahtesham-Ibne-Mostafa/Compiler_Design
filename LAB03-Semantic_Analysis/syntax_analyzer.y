@@ -12,6 +12,7 @@ extern YYSTYPE yylval;
 int lines = 1;
 
 ofstream outlog;
+ofstream errlog;
 
 // Global symbol table
 symbol_table* st;
@@ -27,9 +28,20 @@ string current_return_type = "";
 vector<string> param_types;
 vector<string> param_names;
 
+// For function call argument type collection during parsing
+vector<string> call_arg_types;
+
+// Error tracking
+int error_count = 0;
+
 void yyerror(char *s)
 {
-	outlog<<"At line "<<lines<<" "<<s<<endl<<endl;
+	// Log parse errors to both log and error files
+	outlog << "At line " << lines << " " << s << endl << endl;
+	if (errlog.is_open()) {
+		errlog << "At line " << lines << " " << s << endl;
+		error_count++;
+	}
 }
 // Helper function to parse declaration list and insert variables
 void insert_variables_from_declaration(string type_name, string declaration_list) {
@@ -53,15 +65,25 @@ void insert_variables_from_declaration(string type_name, string declaration_list
             string size_str = item.substr(bracket_pos + 1, close_bracket - bracket_pos - 1);
             int array_size = stoi(size_str);
             
-            symbol_info* var_symbol = new symbol_info(var_name, "ID");
-            var_symbol->set_data_type(type_name);
-            var_symbol->set_array_size(array_size);
-            st->insert(var_symbol);
+			symbol_info* var_symbol = new symbol_info(var_name, "ID");
+			var_symbol->set_data_type(type_name);
+			var_symbol->set_array_size(array_size);
+			if(!st->insert(var_symbol)) {
+				if(errlog.is_open()) {
+					errlog<<"At line "<<lines<<" Error: Multiple declaration of '"<<var_name<<"' in the same scope"<<endl;
+					error_count++;
+				}
+			}
         } else {
             // Regular variable
-            symbol_info* var_symbol = new symbol_info(item, "ID");
-            var_symbol->set_data_type(type_name);
-            st->insert(var_symbol);
+			symbol_info* var_symbol = new symbol_info(item, "ID");
+			var_symbol->set_data_type(type_name);
+			if(!st->insert(var_symbol)) {
+				if(errlog.is_open()) {
+					errlog<<"At line "<<lines<<" Error: Multiple declaration of '"<<item<<"' in the same scope"<<endl;
+					error_count++;
+				}
+			}
         }
     }
 }
@@ -435,20 +457,51 @@ expression_statement : SEMICOLON
 			;
 	  
 variable : ID 	
-      {
-	    outlog<<"At line no: "<<lines<<" variable : ID "<<endl<<endl;
+	  {
+		outlog<<"At line no: "<<lines<<" variable : ID "<<endl<<endl;
 		outlog<<$1->getname()<<endl<<endl;
-			
+        
+		// Lookup variable in symbol table
+		symbol_info* temp = new symbol_info($1->getname(), "ID");
+		symbol_info* sym = st->lookup(temp);
+		delete temp;
+
 		$$ = new symbol_info($1->getname(),"varbl");
-		
-	 }	
+		if(sym == NULL) {
+			if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Variable '"<<$1->getname()<<"' used without declaration"<<endl; error_count++; }
+		} else {
+			// propagate data type
+			$$->set_data_type(sym->get_data_type());
+			if(sym->is_array()) {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Array '"<<$1->getname()<<"' used without index"<<endl; error_count++; }
+			}
+		}
+	 } 	
 	 | ID LTHIRD expression RTHIRD 
 	 {
-	 	outlog<<"At line no: "<<lines<<" variable : ID LTHIRD expression RTHIRD "<<endl<<endl;
+		outlog<<"At line no: "<<lines<<" variable : ID LTHIRD expression RTHIRD "<<endl<<endl;
 		outlog<<$1->getname()<<"["<<$3->getname()<<"]"<<endl<<endl;
-		
+    
+		// Lookup variable and validate array usage
+		symbol_info* temp = new symbol_info($1->getname(), "ID");
+		symbol_info* sym = st->lookup(temp);
+		delete temp;
+
 		$$ = new symbol_info($1->getname()+"["+$3->getname()+"]","varbl");
-	 }
+		if(sym == NULL) {
+			if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Variable '"<<$1->getname()<<"' used without declaration"<<endl; error_count++; }
+		} else {
+			if(!sym->is_array()) {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Subscripted value '"<<$1->getname()<<"' is not an array"<<endl; error_count++; }
+			}
+			// index must be integer
+			if($3->get_data_type() != "int") {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Array index for '"<<$1->getname()<<"' is not an integer"<<endl; error_count++; }
+			}
+			// element type
+			$$->set_data_type(sym->get_data_type());
+		}
+	}
 	 ;
 	 
 expression : logic_expression
@@ -463,7 +516,21 @@ expression : logic_expression
 	    	outlog<<"At line no: "<<lines<<" expression : variable ASSIGNOP logic_expression "<<endl<<endl;
 			outlog<<$1->getname()<<"="<<$3->getname()<<endl<<endl;
 
-			$$ = new symbol_info($1->getname()+"="+$3->getname(),"expr");
+		// Type checking for assignment
+		string ltype = $1->get_data_type();
+		string rtype = $3->get_data_type();
+		if(rtype == "void") {
+			if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Cannot assign result of void function to variable '"<<$1->getname()<<"'"<<endl; error_count++; }
+		} else if(ltype == "int" && rtype == "float") {
+			if(errlog.is_open()) { errlog<<"At line "<<lines<<" Warning: Assigning float to int variable '"<<$1->getname()<<"' may lose precision"<<endl; error_count++; }
+		} else if(ltype != "" && rtype != "" && ltype != rtype) {
+			// allow int->float assignment
+			if(!(ltype == "float" && rtype == "int")) {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Type mismatch in assignment to '"<<$1->getname()<<"'"<<endl; error_count++; }
+			}
+		}
+
+		$$ = new symbol_info($1->getname()+"="+$3->getname(),"expr");
 	   }
 	   ;
 			
@@ -472,14 +539,17 @@ logic_expression : rel_expression
 	    	outlog<<"At line no: "<<lines<<" logic_expression : rel_expression "<<endl<<endl;
 			outlog<<$1->getname()<<endl<<endl;
 			
-			$$ = new symbol_info($1->getname(),"lgc_expr");
+		$$ = new symbol_info($1->getname(),"lgc_expr");
+		// logical expression results are integers (0 or 1)
+		$$->set_data_type("int");
 	     }	
 		 | rel_expression LOGICOP rel_expression 
 		 {
 	    	outlog<<"At line no: "<<lines<<" logic_expression : rel_expression LOGICOP rel_expression "<<endl<<endl;
 			outlog<<$1->getname()<<$2->getname()<<$3->getname()<<endl<<endl;
-			
-			$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"lgc_expr");
+		
+		$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"lgc_expr");
+		$$->set_data_type("int");
 	     }	
 		 ;
 			
@@ -488,14 +558,17 @@ rel_expression	: simple_expression
 	    	outlog<<"At line no: "<<lines<<" rel_expression : simple_expression "<<endl<<endl;
 			outlog<<$1->getname()<<endl<<endl;
 			
-			$$ = new symbol_info($1->getname(),"rel_expr");
+		$$ = new symbol_info($1->getname(),"rel_expr");
+		$$->set_data_type($1->get_data_type());
 	    }
 		| simple_expression RELOP simple_expression
 		{
 	    	outlog<<"At line no: "<<lines<<" rel_expression : simple_expression RELOP simple_expression "<<endl<<endl;
 			outlog<<$1->getname()<<$2->getname()<<$3->getname()<<endl<<endl;
-			
-			$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"rel_expr");
+		
+		$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"rel_expr");
+		// relational operators produce integer result
+		$$->set_data_type("int");
 	    }
 		;
 				
@@ -504,15 +577,22 @@ simple_expression : term
 	    	outlog<<"At line no: "<<lines<<" simple_expression : term "<<endl<<endl;
 			outlog<<$1->getname()<<endl<<endl;
 			
-			$$ = new symbol_info($1->getname(),"simp_expr");
+		$$ = new symbol_info($1->getname(),"simp_expr");
+		$$->set_data_type($1->get_data_type());
 			
 	      }
 		  | simple_expression ADDOP term 
 		  {
 	    	outlog<<"At line no: "<<lines<<" simple_expression : simple_expression ADDOP term "<<endl<<endl;
 			outlog<<$1->getname()<<$2->getname()<<$3->getname()<<endl<<endl;
-			
+		
 			$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"simp_expr");
+			// result type for add/sub: float if any operand is float
+			if($1->get_data_type() == "float" || $3->get_data_type() == "float") {
+				$$->set_data_type("float");
+			} else {
+				$$->set_data_type("int");
+			}
 	      }
 		  ;
 					
@@ -527,24 +607,51 @@ term :	unary_expression
      {
 	    	outlog<<"At line no: "<<lines<<" term : term MULOP unary_expression "<<endl<<endl;
 			outlog<<$1->getname()<<$2->getname()<<$3->getname()<<endl<<endl;
-			
-			$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"term");
+		
+		$$ = new symbol_info($1->getname()+$2->getname()+$3->getname(),"term");
+		string op = $2->getname();
+		// division or multiplication result type: float if any operand float
+		if(op == "%") {
+			// modulus: both operands must be integers
+			if($1->get_data_type() != "int" || $3->get_data_type() != "int") {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Modulus operator requires integer operands"<<endl; error_count++; }
+			}
+			// check divisor zero if constant
+			if($3->getname() == "0") {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Modulus by zero"<<endl; error_count++; }
+			}
+			$$->set_data_type("int");
+		} else if(op == "/") {
+			if($3->getname() == "0" || $3->getname() == "0.0") {
+				if(errlog.is_open()) { errlog<<"At line "<<lines<<" Error: Division by zero"<<endl; error_count++; }
+			}
+			if($1->get_data_type() == "float" || $3->get_data_type() == "float") $$->set_data_type("float");
+			else $$->set_data_type("int");
+		} else {
+			// multiplication
+			if($1->get_data_type() == "float" || $3->get_data_type() == "float") $$->set_data_type("float");
+			else $$->set_data_type("int");
+		}
 	 }
      ;
 
 unary_expression : ADDOP unary_expression
 		 {
-	    	outlog<<"At line no: "<<lines<<" unary_expression : ADDOP unary_expression "<<endl<<endl;
-			outlog<<$1->getname()<<$2->getname()<<endl<<endl;
-			
-			$$ = new symbol_info($1->getname()+$2->getname(),"un_expr");
+	    outlog<<"At line no: "<<lines<<" unary_expression : ADDOP unary_expression "<<endl<<endl;
+		outlog<<$1->getname()<<$2->getname()<<endl<<endl;
+		
+		$$ = new symbol_info($1->getname()+$2->getname(),"un_expr");
+		// type of unary + or - is the type of operand
+		$$->set_data_type($2->get_data_type());
 	     }
 		 | NOT unary_expression 
 		 {
-	    	outlog<<"At line no: "<<lines<<" unary_expression : NOT unary_expression "<<endl<<endl;
-			outlog<<"!"<<$2->getname()<<endl<<endl;
-			
-			$$ = new symbol_info("!"+$2->getname(),"un_expr");
+	    outlog<<"At line no: "<<lines<<" unary_expression : NOT unary_expression "<<endl<<endl;
+		outlog<<"!"<<$2->getname()<<endl<<endl;
+		
+		$$ = new symbol_info("!"+$2->getname(),"un_expr");
+		// logical NOT produces integer (0 or 1)
+		$$->set_data_type("int");
 	     }
 		 | factor 
 		 {
@@ -552,22 +659,64 @@ unary_expression : ADDOP unary_expression
 			outlog<<$1->getname()<<endl<<endl;
 			
 			$$ = new symbol_info($1->getname(),"un_expr");
+		$$->set_data_type($1->get_data_type());
 	     }
 		 ;
 	
-factor	: variable
     {
 	    outlog<<"At line no: "<<lines<<" factor : variable "<<endl<<endl;
 		outlog<<$1->getname()<<endl<<endl;
-			
+		
 		$$ = new symbol_info($1->getname(),"fctr");
+		// propagate variable type
+		$$->set_data_type($1->get_data_type());
 	}
-	| ID LPAREN argument_list RPAREN
+	| ID LPAREN { call_arg_types.clear(); } argument_list RPAREN
 	{
 	    outlog<<"At line no: "<<lines<<" factor : ID LPAREN argument_list RPAREN "<<endl<<endl;
-		outlog<<$1->getname()<<"("<<$3->getname()<<")"<<endl<<endl;
+		outlog<<$1->getname()<<"("<<$4->getname()<<")"<<endl<<endl;
 
-		$$ = new symbol_info($1->getname()+"("+$3->getname()+")","fctr");
+		// Function call checks
+		symbol_info* temp = new symbol_info($1->getname(), "ID");
+		symbol_info* func = st->lookup(temp);
+		delete temp;
+		
+		if(func == NULL) {
+			if(errlog.is_open()) {
+				errlog<<"At line "<<lines<<" Error: Function '"<<$1->getname()<<"' is not declared"<<endl;
+				error_count++;
+			}
+		} else {
+			if(!func->is_function()) {
+				if(errlog.is_open()) {
+					errlog<<"At line "<<lines<<" Error: '"<<$1->getname()<<"' is not a function"<<endl;
+					error_count++;
+				}
+			} else {
+				// check number of parameters
+				if(func->get_param_count() != (int)call_arg_types.size()) {
+					if(errlog.is_open()) {
+						errlog<<"At line "<<lines<<" Error: Function '"<<$1->getname()<<"' called with incorrect number of arguments"<<endl;
+						error_count++;
+					}
+				} else {
+					// check parameter types
+					vector<string> ftypes = func->get_param_types();
+					for(int i=0;i<ftypes.size();i++) {
+						if(ftypes[i] != call_arg_types[i]) {
+							if(errlog.is_open()) {
+								errlog<<"At line "<<lines<<" Error: Type mismatch for parameter "<<i+1<<" in call to '"<<$1->getname()<<"'"<<endl;
+								error_count++;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$$ = new symbol_info($1->getname()+"("+$4->getname()+")","fctr");
+		if(func != NULL) $$->set_data_type(func->get_return_type());
 	}
 	| LPAREN expression RPAREN
 	{
@@ -582,6 +731,7 @@ factor	: variable
 		outlog<<$1->getname()<<endl<<endl;
 			
 		$$ = new symbol_info($1->getname(),"fctr");
+		$$->set_data_type("int");
 	}
 	| CONST_FLOAT
 	{
@@ -589,6 +739,7 @@ factor	: variable
 		outlog<<$1->getname()<<endl<<endl;
 			
 		$$ = new symbol_info($1->getname(),"fctr");
+		$$->set_data_type("float");
 	}
 	| variable INCOP 
 	{
@@ -627,14 +778,17 @@ arguments : arguments COMMA logic_expression
 				outlog<<"At line no: "<<lines<<" arguments : arguments COMMA logic_expression "<<endl<<endl;
 				outlog<<$1->getname()<<","<<$3->getname()<<endl<<endl;
 						
-				$$ = new symbol_info($1->getname()+","+$3->getname(),"arg");
+			$$ = new symbol_info($1->getname()+","+$3->getname(),"arg");
+			// collect argument types for function call checking
+			call_arg_types.push_back($3->get_data_type());
 		  }
 	      | logic_expression
 	      {
 				outlog<<"At line no: "<<lines<<" arguments : logic_expression "<<endl<<endl;
 				outlog<<$1->getname()<<endl<<endl;
 						
-				$$ = new symbol_info($1->getname(),"arg");
+			$$ = new symbol_info($1->getname(),"arg");
+			call_arg_types.push_back($1->get_data_type());
 		  }
 	      ;
  
@@ -644,17 +798,21 @@ arguments : arguments COMMA logic_expression
 int main(int argc, char *argv[])
 {
 
-	if(argc != 2) 
+	if(argc != 3) 
 	{
-		cout<<"Please input file name"<<endl;
+		cout<<"Usage: <program> <input_file.c> <studentID>"<<endl;
 		return 0;
 	}
 	yyin = fopen(argv[1], "r");
-	outlog.open("log3.txt", ios::trunc);
-	
+	string student_id = argv[2];
+	string logname = student_id + "_log.txt";
+	string errname = student_id + "_error.txt";
+	outlog.open(logname.c_str(), ios::trunc);
+	errlog.open(errname.c_str(), ios::trunc);
+    
 	if(yyin == NULL)
 	{
-		cout<<"Couldn't open file"<<endl;
+		cout<<"Couldn't open input file"<<endl;
 		return 0;
 	}
 
@@ -662,16 +820,21 @@ int main(int argc, char *argv[])
 	outlog << "New ScopeTable with ID 1 created" << endl << endl;
 
 	yyparse();
-	
+    
 	outlog<<endl<<"Total lines: "<<lines<<endl;
-	
+	outlog<<"Total Errors: "<<error_count<<endl;
+	if(errlog.is_open()) {
+		errlog<<"Total Errors: "<<error_count<<endl;
+	}
+    
 	// Cleanup
 	delete st;
-	
+    
 	outlog.close();
-	
+	if(errlog.is_open()) errlog.close();
+    
 	fclose(yyin);
-	
+    
 	return 0;
 
 }
