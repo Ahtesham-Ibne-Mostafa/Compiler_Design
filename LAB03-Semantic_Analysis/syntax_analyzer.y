@@ -797,44 +797,34 @@ arguments : arguments COMMA logic_expression
 
 int main(int argc, char *argv[])
 {
-
-	if(argc != 3) 
+	if(argc != 2) 
 	{
-		cout<<"Usage: <program> <input_file.c> <studentID>"<<endl;
+		cout<<"Please input file name"<<endl;
 		return 0;
 	}
 	yyin = fopen(argv[1], "r");
-	string student_id = argv[2];
-	string logname = student_id + "_log.txt";
-	string errname = student_id + "_error.txt";
-	outlog.open(logname.c_str(), ios::trunc);
-	errlog.open(errname.c_str(), ios::trunc);
-    
+	outlog.open("24241309_log.txt", ios::trunc);
+	outerror.open("24241309_error.txt", ios::trunc);
+	
 	if(yyin == NULL)
 	{
-		cout<<"Couldn't open input file"<<endl;
+		cout<<"Couldn't open file"<<endl;
 		return 0;
 	}
-
+	// Enter the global or the first scope here
 	st = new symbol_table(10);
-	outlog << "New ScopeTable with ID 1 created" << endl << endl;
 
 	yyparse();
-    
+	
 	outlog<<endl<<"Total lines: "<<lines<<endl;
-	outlog<<"Total Errors: "<<error_count<<endl;
-	if(errlog.is_open()) {
-		errlog<<"Total Errors: "<<error_count<<endl;
-	}
-    
-	// Cleanup
-	delete st;
-    
+	outlog<<"Total errors: "<<error_count<<endl;
+	outerror<<"Total errors: "<<error_count<<endl;
+	
 	outlog.close();
-	if(errlog.is_open()) errlog.close();
-    
+	outerror.close();
+	
 	fclose(yyin);
-    
+	
 	return 0;
 
 }
