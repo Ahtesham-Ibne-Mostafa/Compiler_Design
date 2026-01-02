@@ -3,11 +3,7 @@
 ## Overview
 This documentation describes the semantic analysis implementation added to the compiler for detecting and reporting semantic errors in C code. The implementation performs multiple types of checks including type checking, uniqueness checking, array operations validation, and function parameter validation.
 
-## Files Modified
-- **21101304.y**: Parser file with semantic analysis rules
-- **21101304.l**: Lexer file (unchanged)
-- Output: **21101304_log.txt** (existing grammar output)
-- Output: **21101304_error.txt** (NEW - error messages)
+
 
 ---
 
